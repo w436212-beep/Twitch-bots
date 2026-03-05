@@ -415,7 +415,7 @@ export class IndividualBot {
         this.events.onConnected?.(this.emitStatus());
       }
     } catch (error) {
-      console.error(`Failed to start viewer mode for ${this.account.username}:`, error);
+      logger.error("Failed to start viewer mode", { error, user: this.account.username });
     }
   }
 }
