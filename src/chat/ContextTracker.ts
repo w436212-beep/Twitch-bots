@@ -83,4 +83,8 @@ export class ContextTracker {
   clear(botId: string): void {
     this.contexts.delete(botId);
   }
+
+  destroy(): void {
+    clearInterval(this.cleanupInterval);
+  }
 }

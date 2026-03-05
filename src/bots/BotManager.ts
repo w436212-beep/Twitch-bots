@@ -5,7 +5,7 @@ import { IndividualBot, BotScheduler } from "./IndividualBot";
 import { BotPool } from "./BotPool";
 import { getLogger } from "../utils/Logger";
 import { ChatLogger } from "../chat/ChatLogger";
-import { loadConfig } from "../config/config";
+import { loadConfig, reloadConfig } from "../config/config";
 import { parseMentions, ContextTracker } from "../chat/ContextTracker";
 import { MessageGenerator } from "../chat/MessageGenerator";
 import { ConversationEngine } from "../chat/ConversationEngine";
@@ -348,6 +348,18 @@ export class BotManager {
     return count;
   }
 
+  destroy(): void {
+    if (this.viewerStatsInterval) {
+      clearInterval(this.viewerStatsInterval);
+      this.viewerStatsInterval = null;
+    }
+    if (this.floatingInterval) {
+      clearInterval(this.floatingInterval);
+      this.floatingInterval = null;
+    }
+    this.contextTracker.destroy();
+  }
+
   canSendGlobally(): boolean {
     const now = Date.now();
     this.messagesLastMinute = this.messagesLastMinute.filter((ts) => now - ts <= 60_000);
@@ -424,7 +436,7 @@ export class BotManager {
       const updated = { ...current, ...newConfig };
       const configPath = path.resolve(process.cwd(), "config.json");
       await fs.promises.writeFile(configPath, JSON.stringify(updated, null, 2), "utf8");
-      const after = loadConfig();
+      const after = reloadConfig();
       logger.info("Config updated", { keys: Object.keys(newConfig) });
 
       if (this.aiService) {
