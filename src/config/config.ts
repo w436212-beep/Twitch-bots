@@ -36,12 +36,8 @@ const normalizeStringArray = (value: unknown): string[] => {
   return value.filter(isNonEmptyString).map((item) => item.trim()).filter((item) => item.length > 0);
 };
 
-const isIpv4 = (value: string): boolean =>
-  /^\d{1,3}(\.\d{1,3}){3}$/.test(value) &&
-  value.split(".").every((part) => {
-    const n = Number(part);
-    return Number.isInteger(n) && n >= 0 && n <= 255;
-  });
+export const isIpv4 = (value: string): boolean =>
+  /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/.test(value);
 
 const isPrivateIpv4 = (value: string): boolean => {
   if (!isIpv4(value)) return false;
