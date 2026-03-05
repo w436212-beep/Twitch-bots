@@ -68,6 +68,7 @@ export class AccountManager {
 
   private async testAccount(account: Account, channel: string): Promise<void> {
     const client = new tmi.Client({
+      connection: { secure: true },
       identity: {
         username: account.username,
         password: account.oauth
@@ -83,7 +84,7 @@ export class AccountManager {
       account.status = AccountStatus.Online;
       account.connectedAt = nowTs();
     } catch (error) {
-      const message = (error as Error).message;
+      const message = error instanceof Error ? error.message : String(error);
       account.status = AccountStatus.Error;
       account.lastError = message;
       logger.warn("Account test failed", { user: account.username, error: message });

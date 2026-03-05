@@ -133,6 +133,7 @@ export class IndividualBot {
 
     this.client = new tmi.Client({
       options: { debug: this.debugEnabled },
+      connection: { secure: true },
       identity: {
         username: this.account.username,
         password: this.account.oauth
@@ -153,7 +154,7 @@ export class IndividualBot {
       this.startMessageLoop();
     } catch (error) {
       this.account.status = AccountStatus.Error;
-      this.account.lastError = (error as Error).message;
+      this.account.lastError = error instanceof Error ? error.message : String(error);
       logger.error("Bot connect failed", { error, user: this.account.username });
       this.events.onDisconnected?.(this.emitStatus(), "connect_failed");
     } finally {
