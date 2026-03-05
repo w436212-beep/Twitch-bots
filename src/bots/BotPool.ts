@@ -22,7 +22,8 @@ export class BotPool {
     const queue = [...bots];
     const workers: Promise<void>[] = [];
 
-    const worker = async (): Promise<void> => {
+    const worker = async (delayStartMs: number): Promise<void> => {
+      await sleep(delayStartMs);
       while (queue.length > 0) {
         const bot = queue.shift();
         if (!bot) return;
@@ -33,7 +34,9 @@ export class BotPool {
 
     const parallel = Math.min(this.maxParallel, bots.length);
     for (let i = 0; i < parallel; i += 1) {
-      workers.push(worker());
+      // Add initial random jitter for each worker to avoid stampeding herd on boot
+      const jitterMs = Math.floor(Math.random() * 2000) * i;
+      workers.push(worker(jitterMs));
     }
 
     await Promise.all(workers).catch((error) => {

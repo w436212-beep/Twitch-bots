@@ -76,17 +76,24 @@ export class ViewerService {
         args.push(`--proxy-server=${proxyUrl.protocol}//${proxyUrl.host}`);
       }
 
-      browser = await puppeteer.launch({
+      const launchPromise = puppeteer.launch({
         headless: false,
         args,
         defaultViewport: { width: 1280, height: 720, deviceScaleFactor: 1 },
         ignoreHTTPSErrors: true,
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+        timeout: 30000 // Ensure puppeteer internal timeout is set
       });
 
-      if (!browser) {
-        throw new Error("Browser launch failed");
+      const launchResult = await Promise.race([
+        launchPromise,
+        new Promise<null>((_, reject) => setTimeout(() => reject(new Error("Puppeteer launch timeout")), 45000))
+      ]);
+
+      if (!launchResult) {
+        throw new Error("Browser launch failed or returned null");
       }
+      browser = launchResult as Browser;
 
       const page = await browser.newPage();
       page.setDefaultNavigationTimeout(60000);
@@ -235,19 +242,29 @@ export class ViewerService {
       closePromises.push(
         (async () => {
           try {
-            await browser.close();
+            await Promise.race([
+              browser.close(),
+              new Promise((_, reject) => setTimeout(() => reject(new Error("Browser close timeout")), 4000))
+            ]);
             this.logger.info("Viewer closed", { user: username });
           } catch (error) {
             this.logger.error("Error while closing viewer", { user: username, error });
+            const process = browser.process();
+            if (process) {
+              process.kill('SIGKILL');
+            }
           }
         })()
       );
     }
 
-    await Promise.all(closePromises);
-    this.browsers.clear();
-    this.pages.clear();
-    this.logger.info("All viewer browsers closed");
+    try {
+      await Promise.allSettled(closePromises);
+    } finally {
+      this.browsers.clear();
+      this.pages.clear();
+      this.logger.info("All viewer browsers closed");
+    }
   }
 
   isViewing(username: string): boolean {

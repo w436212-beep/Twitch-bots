@@ -18,8 +18,9 @@ export class Database {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    this.db = new DatabaseDriver(dbPath);
+    this.db = new DatabaseDriver(dbPath, { timeout: 15000 });
     this.db.pragma("journal_mode = WAL");
+    this.db.pragma("synchronous = NORMAL");
     this.initSchema();
   }
 

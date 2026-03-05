@@ -25,10 +25,28 @@ export class ContextTracker {
   private readonly contexts: Map<string, ContextState> = new Map();
   private readonly maxMessages: number;
   private readonly mentionTimeoutMs: number;
+  private cleanupInterval: NodeJS.Timeout;
 
   constructor(maxMessages = 10, mentionTimeoutMs = 3 * 60 * 1000) {
     this.maxMessages = maxMessages;
     this.mentionTimeoutMs = mentionTimeoutMs;
+    // Periodically clean up stale contexts to prevent memory leaks over long sessions
+    this.cleanupInterval = setInterval(() => this.cleanupStaleContexts(), 5 * 60 * 1000);
+  }
+
+  private cleanupStaleContexts(): void {
+    const now = Date.now();
+    for (const [botId, state] of this.contexts.entries()) {
+      // If the context hasn't been active (based on last message timestamp) for 30 minutes, remove it
+      if (state.messages.length > 0) {
+        const lastMsgTime = state.messages[state.messages.length - 1].timestamp;
+        if (now - lastMsgTime > 30 * 60 * 1000) {
+          this.contexts.delete(botId);
+        }
+      } else {
+        this.contexts.delete(botId);
+      }
+    }
   }
 
   addMessage(botId: string, message: Message, mentionedBot: boolean): void {

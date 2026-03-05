@@ -125,10 +125,19 @@ const registerIpcHandlers = (): void => {
 
   ipcMain.handle("config:get", async () => {
     try {
-      return botManager?.getConfig() ?? loadConfig();
+      const config = botManager?.getConfig() ?? loadConfig();
+      const safeConfig = { ...config } as any;
+      if (safeConfig.openAiApiKey) safeConfig.openAiApiKey = "********";
+      if (safeConfig.twitchClientId) safeConfig.twitchClientId = "********";
+      if (safeConfig.twitchClientSecret) safeConfig.twitchClientSecret = "********";
+      return safeConfig;
     } catch (error) {
       logger.error("config:get failed", { error });
-      return loadConfig();
+      const safeConfig = loadConfig() as any;
+      if (safeConfig.openAiApiKey) safeConfig.openAiApiKey = "********";
+      if (safeConfig.twitchClientId) safeConfig.twitchClientId = "********";
+      if (safeConfig.twitchClientSecret) safeConfig.twitchClientSecret = "********";
+      return safeConfig;
     }
   });
 
@@ -301,5 +310,3 @@ const init = (): void => {
 };
 
 init();
-
-

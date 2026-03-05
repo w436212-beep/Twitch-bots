@@ -26,11 +26,11 @@ index b0a5d4d..3041a0e 100644
 +          void this.rotateBot(account.username);
          }
        }, scheduler, account.username === this.primaryListenerId);
- 
+
        this.bots.set(account.username, bot);
      });
    }
- 
+
 +  private async rotateBot(bannedUsername: string): Promise<void> {
 +    const oldBot = this.bots.get(bannedUsername);
 +    if (oldBot) {
@@ -84,14 +84,14 @@ index cce916a..9b9e69f 100644
  import { getLogger } from "../utils/Logger";
 @@ -8,11 +10,11 @@ import { ContentSafety } from "../utils/ContentSafety";
  const logger = getLogger("chat");
- 
+
  export class MessageGenerator {
 -  private readonly config = loadConfig();
 -  private readonly lastPhraseByBot = new Map<string, string>();
 +  private config = loadConfig();
 +  private lastPhraseByBot = new Map<string, string>();
    private openai: OpenAI | null = null;
- 
+
 -  private readonly reactions = [
 +  private reactions = [
      "лол",
@@ -100,7 +100,7 @@ index cce916a..9b9e69f 100644
 @@ -26,7 +28,7 @@ export class MessageGenerator {
      "точно"
    ];
- 
+
 -  private readonly streamerQuestions = [
 +  private streamerQuestions = [
      "Во что играем?",
@@ -109,7 +109,7 @@ index cce916a..9b9e69f 100644
 @@ -35,7 +37,7 @@ export class MessageGenerator {
      "А если попробовать иначе?"
    ];
- 
+
 -  private readonly chatComments = [
 +  private chatComments = [
      "Интересно",
@@ -118,7 +118,7 @@ index cce916a..9b9e69f 100644
 @@ -44,7 +46,7 @@ export class MessageGenerator {
      "Красивый момент"
    ];
- 
+
 -  private readonly idlePhrases = [
 +  private idlePhrases = [
      "круто",
@@ -127,7 +127,7 @@ index cce916a..9b9e69f 100644
 @@ -53,14 +55,14 @@ export class MessageGenerator {
      "хм"
    ];
- 
+
 -  private readonly botQuestions = [
 +  private botQuestions = [
      "ты как думаешь?",
@@ -135,7 +135,7 @@ index cce916a..9b9e69f 100644
      "а ты видел это?",
      "что скажешь?"
    ];
- 
+
 -  private readonly replies = [
 +  private replies = [
      "Ты прав",
@@ -143,7 +143,7 @@ index cce916a..9b9e69f 100644
      "Может быть",
 @@ -70,6 +72,36 @@ export class MessageGenerator {
    ];
- 
+
 +  constructor() {
 +    this.loadDataset();
 +  }
@@ -183,7 +183,7 @@ index cce916a..9b9e69f 100644
 @@ -125,7 +157,19 @@ export class MessageGenerator {
      }
    }
- 
+
 +  private injectTypo(text: string): string {
 +    if (Math.random() > 0.05 || text.length < 4) return text;
 +    const idx = Math.floor(Math.random() * (text.length - 1));
@@ -212,10 +212,10 @@ index f100e47..c27d81a 100644
 +import { createCursor } from "ghost-cursor";
  import { getLogger } from "../utils/Logger";
  import { ResourceMonitor } from "../utils/ResourceMonitor";
- 
+
 @@ -79,7 +80,7 @@ export class ViewerService {
        }
- 
+
        browser = await puppeteer.launch({
 -        headless: true,
 +        headless: false,
@@ -223,9 +223,9 @@ index f100e47..c27d81a 100644
          defaultViewport: { width: 1280, height: 720, deviceScaleFactor: 1 },
          ignoreHTTPSErrors: true,
 @@ -112,16 +113,6 @@ export class ViewerService {
- 
+
        await page.setViewport({ width: 1280, height: 720 });
- 
+
 -      await page.setRequestInterception(true);
 -      page.on("request", (req) => {
 -        const resourceType = req.resourceType();
@@ -237,11 +237,11 @@ index f100e47..c27d81a 100644
 -      });
 -
        const cleanToken = token.replace(/^oauth:/i, "");
- 
+
        await page.setCookie({
 @@ -266,13 +257,14 @@ export class ViewerService {
    }
- 
+
    private startActivityEmulation(username: string, page: Page): void {
 +    const cursor = createCursor(page);
      const timer = setInterval(() => {
@@ -251,12 +251,12 @@ index f100e47..c27d81a 100644
            const y = Math.floor(20 + Math.random() * 600);
 -          await page.mouse.move(x, y, { steps: 6 });
 +          await cursor.moveTo({ x, y });
- 
+
            if (Math.random() < 0.25) {
              await page.mouse.wheel({ deltaY: Math.floor(Math.random() * 120) - 60 });
 @@ -285,7 +277,7 @@ export class ViewerService {
            });
- 
+
            if (isPaused) {
 -            await page.click(".video-player__container");
 +            await cursor.click(".video-player__container");
@@ -264,7 +264,7 @@ index f100e47..c27d81a 100644
          } catch {
            // ignore
 @@ -361,15 +353,8 @@ export class ViewerService {
- 
+
        await page.evaluate(() => {
          const video = document.querySelector("video") as HTMLVideoElement | null;
 -        if (video) {
@@ -281,7 +281,7 @@ index f100e47..c27d81a 100644
 -          // ignore
 -        }
        });
- 
+
 diff --git a/src/utils/ContentSafety.ts b/src/utils/ContentSafety.ts
 index c6b96b3..c3905c1 100644
 --- a/src/utils/ContentSafety.ts
@@ -290,12 +290,12 @@ index c6b96b3..c3905c1 100644
  export class ContentSafety {
 -  private static bannedWords = ["word1", "word2"]; // Replace with your list
 +  private static bannedWords = [
-+    "ниггер", "nigger", "nigga", "faggot", "пидор", "педик", 
-+    "хохол", "кацап", "чурка", "хач", "жид", "шлюха", "даун", 
++    "ниггер", "nigger", "nigga", "faggot", "пидор", "педик",
++    "хохол", "кацап", "чурка", "хач", "жид", "шлюха", "даун",
 +    "аутист", "retard", "rape", "изнасилование", "свастика",
 +    "hitler", "гитлер", "куколд", "cuck", "kys", "убейся", "суицид", "suicide"
 +  ];
- 
+
    static clean(text: string): string {
 -    let cleaned = text;
 -    this.bannedWords.forEach((word) => {
