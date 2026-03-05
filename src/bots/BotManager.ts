@@ -132,9 +132,11 @@ export class BotManager {
     this.viewerStatsInterval = setInterval(() => {
       if (!loadConfig().viewbotEnabled) return;
       const stats = this.viewerService.getStats();
-      console.log(
-        `📊 Viewbot stats: ${stats.activeBrowsers} browsers, ~${stats.estimatedRAM} MB RAM, ~${stats.estimatedBandwidth} Mbps`
-      );
+      logger.info("Viewbot stats", {
+        browsers: stats.activeBrowsers,
+        ram: stats.estimatedRAM,
+        bandwidth: stats.estimatedBandwidth
+      });
     }, 60000);
   }
 
