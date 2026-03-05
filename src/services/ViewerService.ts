@@ -49,8 +49,6 @@ export class ViewerService {
       });
 
       const args = [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
         "--disable-infobars",
         "--window-position=0,0",
         "--disable-dev-shm-usage",
