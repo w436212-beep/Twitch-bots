@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Message } from "../../utils/types";
 
 const messageId = (msg: Message): string => `${msg.author}|${msg.text}|${msg.timestamp}`;
@@ -31,20 +31,41 @@ export const ChatPreview: React.FC = () => {
   }, [messages]);
 
   return (
-    <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, height: 600, overflow: "auto" }}>
-      <div style={{ fontWeight: 600, marginBottom: 8 }}>Чат</div>
-      {messages.map((m, idx) => {
-        const time = new Date(m.timestamp).toLocaleTimeString();
-        const background = m.isStreamer ? "#fff3cd" : m.isBot ? "#e0f2ff" : "transparent";
-        return (
-          <div key={`${m.timestamp}-${idx}`} style={{ marginBottom: 6, background, padding: "2px 4px" }}>
-            <span style={{ color: "#666" }}>[{time}] </span>
-            <strong>{m.author}: </strong>
-            <span>{m.text}</span>
-          </div>
-        );
-      })}
-      <div ref={bottomRef} />
+    <div className="border border-slate-700 bg-slate-800 rounded-lg p-3 flex flex-col h-full shadow-md">
+      <div className="font-semibold text-slate-100 mb-2 border-b border-slate-700 pb-2">Живой чат</div>
+      <div className="flex-1 overflow-auto custom-scrollbar pr-2 space-y-1">
+        {messages.map((m, idx) => {
+          const time = new Date(m.timestamp).toLocaleTimeString();
+
+          let bgClass = "bg-transparent hover:bg-slate-700/30";
+          let borderClass = "border-transparent";
+
+          if (m.isStreamer) {
+            bgClass = "bg-amber-900/20";
+            borderClass = "border-amber-700/30";
+          } else if (m.isBot) {
+            bgClass = "bg-blue-900/20";
+            borderClass = "border-blue-800/30";
+          }
+
+          return (
+            <div
+              key={`${m.timestamp}-${idx}`}
+              className={`px-2 py-1.5 rounded border ${bgClass} ${borderClass} transition-colors text-sm break-words leading-relaxed`}
+            >
+              <span className="text-slate-500 text-xs font-mono mr-2">[{time}]</span>
+              <strong className={`${m.isStreamer ? 'text-amber-400' : m.isBot ? 'text-blue-400' : 'text-slate-300'} font-semibold mr-1`}>
+                {m.author}:
+              </strong>
+              <span className="text-slate-200">{m.text}</span>
+            </div>
+          );
+        })}
+        {messages.length === 0 && (
+          <div className="text-center text-slate-500 italic mt-4 text-sm">Нет сообщений</div>
+        )}
+        <div ref={bottomRef} className="h-1" />
+      </div>
     </div>
   );
 };

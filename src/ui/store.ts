@@ -57,7 +57,7 @@ export const useUIStore = create<UIState>((set) => ({
   setMessages: (messages) => set({ messages }),
   pushOnlinePoint: (online) =>
     set((state) => ({
-      onlineHistory: [...state.onlineHistory, { timestamp: Date.now(), online }].slice(-120)
+      onlineHistory: [...state.onlineHistory, { timestamp: Date.now(), online }].slice(-60)
     })),
   setStats: (stats) => set({ stats }),
   setLastAccountsText: (text) => set({ lastAccountsText: text })
@@ -101,7 +101,7 @@ export const initIpc = (): void => {
     const stats = payload as StatsState;
     useUIStore.setState((state) => ({
       stats,
-      onlineHistory: [...state.onlineHistory, { timestamp: Date.now(), online: stats.onlineBots }].slice(-120)
+      onlineHistory: [...state.onlineHistory, { timestamp: Date.now(), online: stats.onlineBots }].slice(-60)
     }));
   });
 
