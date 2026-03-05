@@ -82,7 +82,17 @@ const loadJsonConfig = (): Partial<AppConfig> => {
   }
 };
 
+let cachedConfig: AppConfig | null = null;
+
+export const reloadConfig = (): AppConfig => {
+  cachedConfig = null;
+  return loadConfig();
+};
+
 export const loadConfig = (): AppConfig => {
+  if (cachedConfig) return cachedConfig;
+
+
   const fileConfig = loadJsonConfig();
 
   const mode = normalizeMode(fileConfig.mode ?? process.env.BOT_MODE, defaults.mode as BotMode);
@@ -370,5 +380,6 @@ export const loadConfig = (): AppConfig => {
       : normalizeStringArray(defaults.userAgents)
   };
 
+  cachedConfig = config;
   return config;
 };

@@ -82,7 +82,7 @@ export class ViewerService {
         defaultViewport: { width: 1280, height: 720, deviceScaleFactor: 1 },
         ignoreHTTPSErrors: true,
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
-        timeout: 30000 // Ensure puppeteer internal timeout is set
+        timeout: 60000 // Ensure puppeteer internal timeout is set
       });
 
       const launchResult = await Promise.race([
@@ -201,7 +201,7 @@ export class ViewerService {
     } catch (error) {
       this.logger.error("Failed to start viewing", { user: username, error });
       if (browser) {
-        await browser.close().catch(() => {});
+        await Promise.race([browser.close(), new Promise((r) => setTimeout(r, 4000))]).catch(() => {});
       }
       return false;
     }
@@ -216,7 +216,7 @@ export class ViewerService {
     }
     if (browser) {
       try {
-        await browser.close();
+        await Promise.race([browser.close(), new Promise((_, reject) => setTimeout(() => reject(new Error("Close timeout")), 4000))]);
         this.logger.info("Stopped viewing", { user: username });
       } catch (error) {
         this.logger.error("Error while closing browser", { user: username, error });

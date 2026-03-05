@@ -293,6 +293,7 @@ const init = (): void => {
     try {
       if (botManager) {
         await withTimeout(botManager.stopAll(), 5000);
+        botManager.destroy();
       }
     } finally {
       db?.close();
