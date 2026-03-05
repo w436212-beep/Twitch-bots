@@ -1,0 +1,17 @@
+name: Local Config
+version: 1.0.0
+schema: v1
+
+# Настройки ваших моделей
+models:
+  - name: Claude Opus 4.6 (AINFT)
+    provider: openai
+    model: claude-4.6-opus
+    apiKey: sk-etk0tafzz8fjpcp4tp1bawyvgnz7q4gp
+    apiBase: https://chat.ainft.com/webapi/chat
+
+  - name: DeepSeek v3.1
+    provider: openai
+    model: deepseek-v3.1
+    apiKey: sk-NVjqEkg3gFrya91AJWmMJId4MADYmL84ai72xZwZSBHZxWwe
+    apiBase: https://agentrouter.org/
