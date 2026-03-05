@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useUIStore } from "../store";
 
 const formatUptime = (seconds: number): string => {
@@ -8,6 +8,20 @@ const formatUptime = (seconds: number): string => {
   const pad = (n: number) => n.toString().padStart(2, "0");
   return `${pad(h)}:${pad(m)}:${pad(s)}`;
 };
+
+interface MetricCardProps {
+  title: string;
+  value: string | number;
+  subValue?: string | number;
+}
+
+const MetricCard: React.FC<MetricCardProps> = ({ title, value, subValue }) => (
+  <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-md flex flex-col justify-center">
+    <div className="text-sm text-slate-400 mb-1">{title}</div>
+    <div className="text-2xl font-bold text-slate-100">{value}</div>
+    {subValue !== undefined && <div className="text-xs text-slate-500 mt-1">{subValue}</div>}
+  </div>
+);
 
 export const StatsBar: React.FC = () => {
   const stats = useUIStore((state) => state.stats);
@@ -34,20 +48,34 @@ export const StatsBar: React.FC = () => {
     };
   }, [stats.onlineBots]);
 
+  const cacheHitRate = stats.aiRequests > 0 ? ((stats.aiCacheHits / stats.aiRequests) * 100).toFixed(1) : "0.0";
+
   return (
-    <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, display: "flex", gap: 16, flexWrap: "wrap" }}>
-      <div>Онлайн: {stats.onlineBots}/{stats.totalBots}</div>
-      <div>Скорость: {stats.chatRate.toFixed(1)} msg/min</div>
-      <div>AI Cost: ${stats.aiCost.toFixed(4)}</div>
-      <div>Ingress: {stats.aiPromptTokens}</div>
-      <div>Egress: {stats.aiCompletionTokens}</div>
-      <div>
-        Cache Hit Rate: {stats.aiRequests > 0 ? ((stats.aiCacheHits / stats.aiRequests) * 100).toFixed(1) : "0.0"}%
-      </div>
-      <div>RAM: {stats.ramUsageMb} MB</div>
-      <div>Free RAM: {stats.systemFreeGb.toFixed(2)} GB</div>
-      <div>CPU Load(1m): {stats.cpuLoad1m.toFixed(2)}</div>
-      <div>Uptime: {formatUptime(uptime)}</div>
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <MetricCard
+        title="Онлайн / Всего"
+        value={`${stats.onlineBots} / ${stats.totalBots}`}
+        subValue={`Скорость: ${stats.chatRate.toFixed(1)} msg/min`}
+      />
+      <MetricCard
+        title="AI Cost"
+        value={`$${stats.aiCost.toFixed(4)}`}
+        subValue={`Cache Hit: ${cacheHitRate}%`}
+      />
+      <MetricCard
+        title="AI Tokens"
+        value={`${stats.aiPromptTokens}`}
+        subValue={`Egress: ${stats.aiCompletionTokens}`}
+      />
+      <MetricCard
+        title="System (RAM)"
+        value={`${stats.ramUsageMb} MB`}
+        subValue={`Free: ${stats.systemFreeGb.toFixed(2)} GB | CPU(1m): ${stats.cpuLoad1m.toFixed(2)}`}
+      />
+      <MetricCard
+        title="Uptime"
+        value={formatUptime(uptime)}
+      />
     </div>
   );
 };

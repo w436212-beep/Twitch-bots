@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AppConfig } from "../../utils/types";
 
 interface SettingsModalProps {
@@ -77,46 +77,39 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "rgba(0, 0, 0, 0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 1000
-      }}
-    >
-      <div style={{ background: "white", padding: 20, borderRadius: 8, width: 520 }}>
-        <h3>Настройки</h3>
+    <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-[1000] p-4 text-slate-200">
+      <div className="bg-slate-800 border border-slate-700 p-6 rounded-xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <h3 className="text-xl font-bold mb-4 text-slate-100 flex items-center gap-2">
+          <span>⚙️</span> Настройки
+        </h3>
+
         {loading ? (
-          <div>Загрузка...</div>
+          <div className="py-8 text-center text-slate-400">Загрузка...</div>
         ) : (
-          <>
-            <div style={{ marginBottom: 12 }}>
-              <label>Twitch канал (без #):</label>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Twitch канал (без #):</label>
               <input
                 type="text"
                 value={channel}
                 onChange={(e) => setChannel(e.target.value)}
-                style={{ width: "100%" }}
+                className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500 transition-colors"
+                placeholder="Имя канала"
               />
             </div>
 
-            <div style={{ marginBottom: 12 }}>
-              <label>Кулдаун сообщений (сек): {cooldownMin} - {cooldownMax}</label>
-              <div style={{ display: "flex", gap: 8 }}>
+            <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-700/50">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Кулдаун сообщений (сек): <span className="text-blue-400 font-bold">{cooldownMin}</span> - <span className="text-blue-400 font-bold">{cooldownMax}</span>
+              </label>
+              <div className="flex gap-4">
                 <input
                   type="range"
                   min={20}
                   max={180}
                   value={cooldownMin}
                   onChange={(e) => setCooldownMin(Number(e.target.value))}
-                  style={{ flex: 1 }}
+                  className="w-full accent-blue-500"
                 />
                 <input
                   type="range"
@@ -124,21 +117,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   max={180}
                   value={cooldownMax}
                   onChange={(e) => setCooldownMax(Number(e.target.value))}
-                  style={{ flex: 1 }}
+                  className="w-full accent-blue-500"
                 />
               </div>
             </div>
 
-            <div style={{ marginBottom: 12 }}>
-              <label>Скорость чата (сообщений в минуту): {chatRateMin} - {chatRateMax}</label>
-              <div style={{ display: "flex", gap: 8 }}>
+            <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-700/50">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Скорость чата (сообщ/мин): <span className="text-blue-400 font-bold">{chatRateMin}</span> - <span className="text-blue-400 font-bold">{chatRateMax}</span>
+              </label>
+              <div className="flex gap-4">
                 <input
                   type="range"
                   min={1}
                   max={10}
                   value={chatRateMin}
                   onChange={(e) => setChatRateMin(Number(e.target.value))}
-                  style={{ flex: 1 }}
+                  className="w-full accent-blue-500"
                 />
                 <input
                   type="range"
@@ -146,126 +141,142 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   max={10}
                   value={chatRateMax}
                   onChange={(e) => setChatRateMax(Number(e.target.value))}
-                  style={{ flex: 1 }}
+                  className="w-full accent-blue-500"
                 />
               </div>
             </div>
 
-            <div style={{ marginBottom: 12 }}>
-              <label>
+            <div className="border border-slate-700 rounded-lg p-3">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={floatingEnabled}
                   onChange={(e) => setFloatingEnabled(e.target.checked)}
+                  className="w-4 h-4 rounded bg-slate-900 border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-800"
                 />
-                Включить плавающий онлайн
+                <span className="text-sm font-medium text-slate-300">Включить плавающий онлайн</span>
               </label>
+
+              {floatingEnabled && (
+                <div className="mt-3 pl-6">
+                  <label className="block text-xs text-slate-400 mb-1">
+                    Процент офлайн ботов: <span className="text-blue-400">{floatingPercent}%</span>
+                  </label>
+                  <input
+                    type="range"
+                    min={10}
+                    max={50}
+                    value={floatingPercent}
+                    onChange={(e) => setFloatingPercent(Number(e.target.value))}
+                    className="w-full accent-blue-500"
+                  />
+                </div>
+              )}
             </div>
 
-            {floatingEnabled && (
-              <div style={{ marginBottom: 12 }}>
-                <label>Процент офлайн ботов (%): {floatingPercent}</label>
-                <input
-                  type="range"
-                  min={10}
-                  max={50}
-                  value={floatingPercent}
-                  onChange={(e) => setFloatingPercent(Number(e.target.value))}
-                  style={{ width: "100%" }}
-                />
+            <div className="pt-4 mt-4 border-t border-slate-700">
+              <div className="font-semibold text-slate-200 mb-2 flex items-center gap-2">
+                <span className="bg-purple-500/20 text-purple-400 p-1 rounded">👁️</span> Viewbot режим
               </div>
-            )}
 
-            <div style={{ borderTop: "1px solid #eee", paddingTop: 12, marginTop: 12 }}>
-              <div style={{ marginBottom: 8, fontWeight: 600 }}>Viewbot режим</div>
-              <label>
+              <label className="flex items-center gap-2 cursor-pointer mb-3">
                 <input
                   type="checkbox"
                   checked={viewbotEnabled}
                   onChange={(e) => setViewbotEnabled(e.target.checked)}
+                  className="w-4 h-4 rounded bg-slate-900 border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-800"
                 />
-                Включить Viewbot (боты будут считаться зрителями)
+                <span className="text-sm font-medium text-slate-300">Считать ботов зрителями</span>
               </label>
-              <div
-                style={{
-                  marginTop: 8,
-                  background: "#fff8db",
-                  border: "1px solid #f2d36b",
-                  borderRadius: 6,
-                  padding: 8,
-                  fontSize: 12
-                }}
-              >
-                ⚠️ Внимание: Каждый бот откроет headless браузер. Рекомендуется максимум 10-15 ботов одновременно.
-                Потребление: ~80-100 MB RAM на бота.
+
+              <div className="bg-yellow-900/30 border border-yellow-700/50 rounded-lg p-3 text-xs text-yellow-200/80 mb-3 leading-relaxed">
+                <span className="text-yellow-400 font-bold">⚠️ Внимание:</span> Каждый бот откроет headless браузер.
+                Рекомендуется максимум 10-15 ботов одновременно. Потребление: ~80-100 MB RAM на бота.
+                <br/><span className="mt-1 block text-slate-400 italic">ℹ️ Боты будут смотреть стрим в 160p, muted.</span>
               </div>
-              <div style={{ fontSize: 12, color: "#666", marginTop: 6 }}>
-                ℹ️ Боты будут смотреть стрим в минимальном качестве (160p, muted). Они появятся в счетчике зрителей на
-                Twitch.
-              </div>
-              <div style={{ marginTop: 12 }}>
-                <label>Прокси (1 строка = 1 прокси):</label>
-                <textarea
-                  value={proxiesText}
-                  onChange={(e) => setProxiesText(e.target.value)}
-                  placeholder={"http://user:pass@ip:port\nhttp://ip:port"}
-                  rows={4}
-                  style={{ width: "100%" }}
-                />
-              </div>
-              <div style={{ marginTop: 12 }}>
-                <label>User-Agent (1 строка = 1 UA):</label>
-                <textarea
-                  value={userAgentsText}
-                  onChange={(e) => setUserAgentsText(e.target.value)}
-                  placeholder={"Mozilla/5.0 ...\nMozilla/5.0 ..."}
-                  rows={4}
-                  style={{ width: "100%" }}
-                />
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Прокси (1 строка = 1 прокси):</label>
+                  <textarea
+                    value={proxiesText}
+                    onChange={(e) => setProxiesText(e.target.value)}
+                    placeholder={"http://user:pass@ip:port\nhttp://ip:port"}
+                    rows={3}
+                    className="w-full bg-slate-900 border border-slate-600 rounded text-sm p-2 text-slate-300 focus:outline-none focus:border-blue-500 resize-none font-mono text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">User-Agent (1 строка = 1 UA):</label>
+                  <textarea
+                    value={userAgentsText}
+                    onChange={(e) => setUserAgentsText(e.target.value)}
+                    placeholder={"Mozilla/5.0 ...\nMozilla/5.0 ..."}
+                    rows={3}
+                    className="w-full bg-slate-900 border border-slate-600 rounded text-sm p-2 text-slate-300 focus:outline-none focus:border-blue-500 resize-none font-mono text-xs"
+                  />
+                </div>
               </div>
             </div>
 
-            <div style={{ borderTop: "1px solid #eee", paddingTop: 12, marginTop: 12 }}>
-              <div style={{ marginBottom: 8, fontWeight: 600 }}>AI режим</div>
-              <label>
+            <div className="pt-4 mt-4 border-t border-slate-700">
+              <div className="font-semibold text-slate-200 mb-2 flex items-center gap-2">
+                <span className="bg-blue-500/20 text-blue-400 p-1 rounded">🤖</span> AI режим
+              </div>
+
+              <label className="flex items-center gap-2 cursor-pointer mb-3">
                 <input
                   type="checkbox"
                   checked={aiEnabled}
                   onChange={(e) => setAiEnabled(e.target.checked)}
+                  className="w-4 h-4 rounded bg-slate-900 border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-800"
                 />
-                Включить AI режим
+                <span className="text-sm font-medium text-slate-300">Включить AI генерацию ответов</span>
               </label>
-              <div style={{ marginTop: 8 }}>
-                <label>OpenAI API ключ:</label>
-                <input
-                  type="password"
-                  placeholder="sk-proj-..."
-                  value={aiApiKey}
-                  onChange={(e) => setAiApiKey(e.target.value)}
-                  style={{ width: "100%" }}
-                />
-              </div>
-              <div style={{ marginTop: 8 }}>
-                <label>Вероятность ответа (%): {aiChancePercent}</label>
-                <input
-                  type="range"
-                  min={10}
-                  max={60}
-                  value={aiChancePercent}
-                  onChange={(e) => setAiChancePercent(Number(e.target.value))}
-                  style={{ width: "100%" }}
-                />
-              </div>
-              <div style={{ fontSize: 12, color: "#666", marginTop: 6 }}>
-                Боты будут отвечать друг другу используя AI. Требуется OpenAI API ключ.
+
+              <div className="space-y-3 pl-6">
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">OpenAI API ключ:</label>
+                  <input
+                    type="password"
+                    placeholder="sk-proj-..."
+                    value={aiApiKey}
+                    onChange={(e) => setAiApiKey(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-600 rounded px-3 py-1.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">
+                    Вероятность ответа: <span className="text-blue-400 font-bold">{aiChancePercent}%</span>
+                  </label>
+                  <input
+                    type="range"
+                    min={10}
+                    max={60}
+                    value={aiChancePercent}
+                    onChange={(e) => setAiChancePercent(Number(e.target.value))}
+                    className="w-full accent-blue-500"
+                  />
+                </div>
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-              <button onClick={onClose}>Отмена</button>
-              <button onClick={handleSave}>Сохранить</button>
+            <div className="flex justify-end gap-3 pt-4 mt-6 border-t border-slate-700">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-blue-900/20"
+              >
+                Сохранить настройки
+              </button>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
