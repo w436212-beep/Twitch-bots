@@ -22,6 +22,7 @@ export interface BotManagerEvents {
 
 export class BotManager {
   private readonly accountManager: { getAll: () => Account[]; updateStatus: (username: string, status: AccountStatus, lastError?: string) => void };
+  private configUpdateLock: Promise<void> = Promise.resolve();
   private readonly pool: BotPool;
   private readonly chatLogger?: ChatLogger;
   private readonly events?: BotManagerEvents;
@@ -410,32 +411,42 @@ export class BotManager {
   }
 
   async updateConfig(newConfig: Partial<AppConfig>): Promise<AppConfig> {
-    const current = loadConfig();
-    const updated = { ...current, ...newConfig };
-    const configPath = path.resolve(process.cwd(), "config.json");
-    fs.writeFileSync(configPath, JSON.stringify(updated, null, 2), "utf8");
-    const after = loadConfig();
-    logger.info("Config updated", { keys: Object.keys(newConfig) });
+    await this.configUpdateLock;
+    let releaseLock: () => void = () => {};
+    this.configUpdateLock = new Promise((resolve) => {
+      releaseLock = resolve;
+    });
 
-    if (this.aiService) {
-      this.aiService.updateConfig(after);
-      if (after.aiEnabled) {
-        logger.info("AI mode enabled");
-      } else {
-        logger.info("AI mode disabled");
+    try {
+      const current = loadConfig();
+      const updated = { ...current, ...newConfig };
+      const configPath = path.resolve(process.cwd(), "config.json");
+      await fs.promises.writeFile(configPath, JSON.stringify(updated, null, 2), "utf8");
+      const after = loadConfig();
+      logger.info("Config updated", { keys: Object.keys(newConfig) });
+
+      if (this.aiService) {
+        this.aiService.updateConfig(after);
+        if (after.aiEnabled) {
+          logger.info("AI mode enabled");
+        } else {
+          logger.info("AI mode disabled");
+        }
       }
+
+      this.stopFloating();
+      this.startFloating();
+
+      if (current.channel !== after.channel) {
+        await this.stopAll();
+        this.initialize();
+        await this.startAll();
+      }
+
+      return after;
+    } finally {
+      releaseLock();
     }
-
-    this.stopFloating();
-    this.startFloating();
-
-    if (current.channel !== after.channel) {
-      await this.stopAll();
-      this.initialize();
-      await this.startAll();
-    }
-
-    return after;
   }
 
   private shuffle(list: IndividualBot[]): IndividualBot[] {
