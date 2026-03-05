@@ -53,7 +53,7 @@
 - [x] (Chat) Implement global chat rate limiter. Depends on: RateLimiter. Success: 1-10 msg/min enforced.
 - [x] (Chat) Implement streamer detection. Depends on: config. Success: flags isStreamer from username.
 - [x] (Chat) Implement isBot detection. Depends on: AccountManager. Success: flags messages from our bots.
-- [ ] (Chat) Implement AI cost tracking. Depends on: MessageGenerator. Success: accumulates estimated spend.
+- [x] (Chat) Implement AI cost tracking. Depends on: MessageGenerator. Success: accumulates estimated spend.
 - [x] (UI) Implement live account status updates. Depends on: IPC. Success: table updates without refresh.
 - [x] (UI) Implement chat preview feed. Depends on: IPC. Success: last 50 messages update realtime.
 - [x] (UI) Implement online chart updates. Depends on: IPC. Success: updates every 30s.
@@ -65,14 +65,14 @@
 
 ## P2 - Medium
 - [x] (Services) Harden ViewerService playback start and activity emulation. Depends on: ViewerService. Success: playback starts more reliably, activity simulated, request blocking removed.
-- [ ] (Chat) Implement AI response cache. Depends on: MessageGenerator. Success: reuses frequent prompts.
+- [x] (Chat) Implement AI response cache. Depends on: MessageGenerator. Success: reuses frequent prompts.
 - [ ] (Chat) Implement profanity filter. Depends on: MessageGenerator. Success: blocks/edits banned words.
 - [ ] (Chat) Implement typo injection (5%). Depends on: MessageGenerator. Success: random typo applied.
 - [ ] (Chat) Implement fixed phrases dataset loader. Depends on: MessageGenerator. Success: reads JSON file.
 - [ ] (Chat) Implement phrase non-repeat per bot. Depends on: MessageGenerator. Success: no consecutive duplicates.
 - [ ] (Bots) Implement connect jitter ±1s. Depends on: BotPool. Success: staggered random delay.
 - [ ] (Bots) Implement welcome message after join. Depends on: MessageGenerator. Success: sends greeting after 5-15s.
-- [ ] (Bots) Implement ban/timeout handling. Depends on: IndividualBot. Success: status set to banned/error.
+- [x] (Bots) Implement ban/timeout handling. Depends on: IndividualBot. Success: status set to banned/error.
 - [ ] (Database) Implement message query API. Depends on: Database.ts. Success: fetch recent messages by filters.
 - [ ] (Database) Implement indexes migration verification. Depends on: Database.ts. Success: indexes exist.
 - [x] (UI) Implement uptime display. Depends on: StatsBar. Success: shows hh:mm:ss.
@@ -93,7 +93,7 @@
 - [ ] (Chat) Add additional idle phrases pack. Depends on: fixed phrases loader. Success: extra JSON file.
 - [ ] (Utils) Add telemetry opt-in. Depends on: config. Success: optional toggle stored.
 - [ ] (Setup) Add CI workflow. Depends on: repo git. Success: lint/test on push.
-- [ ] (Docs) Add README with setup steps. Depends on: package.json. Success: clear instructions.
+- [x] (Docs) Add README with setup steps. Depends on: package.json. Success: clear instructions.
 - [ ] (Docs) Add CONTRIBUTING guide. Depends on: README. Success: contribution steps listed.
 
 
